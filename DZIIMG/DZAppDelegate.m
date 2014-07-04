@@ -8,7 +8,6 @@
 
 #import "DZAppDelegate.h"
 #import "DZUIImageViewerController.h"
-#import "UIImageView+WebCache.h"
 
 @implementation DZAppDelegate
 
@@ -21,8 +20,7 @@
     DZUIImageViewerController *imageViewer = [[DZUIImageViewerController alloc] init];
     
 //    Can be UIImage, NSString or NSURL objects
-	imageViewer.photos = @[[UIImage imageNamed:@"flckr"],
-                           @"https://farm4.staticflickr.com/3895/14537514401_731d6b15c2.jpg",
+	imageViewer.photos = @[@"https://farm4.staticflickr.com/3895/14537514401_731d6b15c2.jpg",
 						   @"https://farm4.staticflickr.com/3866/14537514541_f0a427ac65.jpg",
 						   @"https://farm3.staticflickr.com/2912/14560785463_c30cee7190.jpg",
 						   @"https://farm6.staticflickr.com/5528/14538801834_39fcfa8b23.jpg",

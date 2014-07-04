@@ -9,6 +9,7 @@
 #import "DZUIImageViewerController.h"
 #import "DZUIImageViewerCell.h"
 #import "UIImageView+WebCache.h"
+#import "DZFlowLayout.h"
 
 static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 
@@ -24,11 +25,8 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 - (instancetype)init
 {
 	
-	UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-	layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-	layout.minimumInteritemSpacing = 0;
-	layout.minimumLineSpacing = 0;
-	
+	DZFlowLayout *layout = [[DZFlowLayout alloc] init];
+    
     if (self = [super initWithCollectionViewLayout:layout])
 	{
         // Custom initialization
@@ -54,11 +52,12 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-	
-	[self.collectionView setDataSource:self];
+    
+    [self.collectionView setDataSource:self];
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateStatusBarDisplay:) name:kUpdateStatusBarDisplay object:nil];
-
+    [self addObserver:self forKeyPath:@"photos" options:kNilOptions context:nil];
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -70,95 +69,18 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 - (void)dealloc
 {
 	[self.collectionView setDataSource:nil];
+    [self removeObserver:self forKeyPath:@"photos"];
 }
 
-#pragma mark - Rotation
-
-// iOS 7
--(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    
-	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	
-	[self.collectionView.collectionViewLayout invalidateLayout];
-	
-	CGPoint currentOffset = [self.collectionView contentOffset];
-	self.currentIndex = currentOffset.x / self.collectionView.frame.size.width;
-    self.collectionView.alpha = 0;
-    
-    if(UIInterfaceOrientationIsLandscape(toInterfaceOrientation))
-    {
-        self.forcedStatusBarHidden = YES;
-    }
-    else
-    {
-        self.forcedStatusBarHidden = NO;
-    }
-	
-}
-
--(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+- (void)setSelectedIndex:(NSInteger)index
 {
-	
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-	
-	// Force realignment of cell being displayed
+    self.currentIndex = index;
+    
     CGSize currentSize = self.collectionView.bounds.size;
     CGFloat offset = self.currentIndex * currentSize.width;
     
-    [self setNeedsStatusBarAppearanceUpdate];
-    
     [self.collectionView setContentOffset:CGPointMake(offset, 0)];
-    
-    __weak typeof(self) weakSelf = self;
-    [UIView animateWithDuration:0.15 animations:^{
-        
-        typeof(weakSelf) sself = weakSelf;
-        sself.collectionView.alpha = 1.0f;
-        
-    }];
-	
 }
-
-// iOS 8
-//- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
-//{
-//	NSLog(@"HERE?");
-//	self.forcedStatusBarHidden = size.height == 320.0f;
-//	[self setNeedsStatusBarAppearanceUpdate];
-//	
-//	if(coordinator)
-//	{
-//		[self.collectionView.collectionViewLayout invalidateLayout];
-//		
-//		CGPoint currentOffset = [self.collectionView contentOffset];
-//		self.currentIndex = currentOffset.x / self.collectionView.frame.size.width;
-//		self.collectionView.alpha = 0;
-//		
-//		__weak typeof(self) weakSelf = self;
-//		[coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-//		
-//		} completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-//			
-//			typeof(weakSelf) sself = weakSelf;
-//			
-//			CGSize currentSize = size;
-//			CGFloat offset = self.currentIndex * currentSize.width;
-//            
-//            NSLog(@"%.2f", offset);
-//            
-//			[sself.collectionView setContentOffset:CGPointMake(offset, 0)];
-//			
-//			[UIView animateWithDuration:0.15 animations:^{
-//				
-//				sself.collectionView.alpha = 1.0f;
-//				
-//			}];
-//			
-//		}];
-//		
-//	}
-//	
-//}
 
 #pragma mark - Notifications
 
@@ -181,14 +103,14 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-	return [self.photos count];
+    return [self.photos count];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
 	DZUIImageViewerCell *cell = (DZUIImageViewerCell *)[collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
-	
-	id obj = [self.photos objectAtIndex:indexPath.item];
+    
+    id obj = [self.photos objectAtIndex:indexPath.item];
 	
     if([obj isKindOfClass:[UIImage class]])
     {
@@ -242,13 +164,6 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
     [(DZUIImageViewerCell *)cell centerScrollViewContents];
 }
 
-#pragma mark - Collection View Flow Layout Delegate
-
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
-{
-	return self.collectionView.bounds.size;
-}
-
 #pragma mark - Status Bar
 
 - (UIStatusBarStyle)preferredStatusBarStyle
@@ -264,6 +179,16 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 - (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
 {
 	return UIStatusBarAnimationSlide;
+}
+
+#pragma mark - KVO
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if([keyPath isEqualToString:@"photos"])
+    {
+        [self.collectionView reloadData];
+    }
 }
 
 @end

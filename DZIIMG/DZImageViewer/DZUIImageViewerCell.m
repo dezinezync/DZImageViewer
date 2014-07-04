@@ -137,6 +137,8 @@ NSString *const kStatusBarHiddenKey = @"com.dezinezync.statusBarHiddenKey";
 	}
 	else
 	{
+        if(self.view.zoomScale == self.view.maximumZoomScale) return;
+        
 //		Zoom in at tapPoint
 		
 		CGSize scrollViewSize = self.view.bounds.size;

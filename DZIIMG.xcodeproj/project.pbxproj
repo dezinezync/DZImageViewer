@@ -19,6 +19,7 @@
 		F00B6191196055F300F6EBB8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F00B6179196055F300F6EBB8 /* UIKit.framework */; };
 		F00B6199196055F300F6EBB8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F00B6197196055F300F6EBB8 /* InfoPlist.strings */; };
 		F00B619B196055F300F6EBB8 /* DZIIMGTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F00B619A196055F300F6EBB8 /* DZIIMGTests.m */; };
+		F02BF5DC1966F4CA00A68282 /* DZFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = F02BF5DB1966F4CA00A68282 /* DZFlowLayout.m */; };
 		F0C5AC83196165F300CC51EB /* MKAnnotationView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = F0C5AC63196165F300CC51EB /* MKAnnotationView+WebCache.m */; };
 		F0C5AC84196165F300CC51EB /* NSData+ImageContentType.m in Sources */ = {isa = PBXBuildFile; fileRef = F0C5AC65196165F300CC51EB /* NSData+ImageContentType.m */; };
 		F0C5AC85196165F300CC51EB /* SDImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = F0C5AC67196165F300CC51EB /* SDImageCache.m */; };
@@ -67,6 +68,8 @@
 		F00B6196196055F300F6EBB8 /* DZIIMGTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DZIIMGTests-Info.plist"; sourceTree = "<group>"; };
 		F00B6198196055F300F6EBB8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F00B619A196055F300F6EBB8 /* DZIIMGTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DZIIMGTests.m; sourceTree = "<group>"; };
+		F02BF5DA1966F4CA00A68282 /* DZFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DZFlowLayout.h; sourceTree = "<group>"; };
+		F02BF5DB1966F4CA00A68282 /* DZFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DZFlowLayout.m; sourceTree = "<group>"; };
 		F0C5AC62196165F300CC51EB /* MKAnnotationView+WebCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "MKAnnotationView+WebCache.h"; path = "DZIIMG/vendors/SDWebImage/SDWebImage/MKAnnotationView+WebCache.h"; sourceTree = SOURCE_ROOT; };
 		F0C5AC63196165F300CC51EB /* MKAnnotationView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "MKAnnotationView+WebCache.m"; path = "DZIIMG/vendors/SDWebImage/SDWebImage/MKAnnotationView+WebCache.m"; sourceTree = SOURCE_ROOT; };
 		F0C5AC64196165F300CC51EB /* NSData+ImageContentType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSData+ImageContentType.h"; path = "DZIIMG/vendors/SDWebImage/SDWebImage/NSData+ImageContentType.h"; sourceTree = SOURCE_ROOT; };
@@ -252,6 +255,8 @@
 				F0D2058E19669CE200779F94 /* DZProgressView.m */,
 				F0D2058F19669CE200779F94 /* DZUIImageViewerCell.h */,
 				F0D2059019669CE200779F94 /* DZUIImageViewerCell.m */,
+				F02BF5DA1966F4CA00A68282 /* DZFlowLayout.h */,
+				F02BF5DB1966F4CA00A68282 /* DZFlowLayout.m */,
 				F0D2059119669CE200779F94 /* DZUIImageViewerController.h */,
 				F0D2059219669CE200779F94 /* DZUIImageViewerController.m */,
 				F0D2059319669CE200779F94 /* DZUIStatics.h */,
@@ -370,6 +375,7 @@
 				F0C5AC88196165F300CC51EB /* SDWebImageDownloader.m in Sources */,
 				F0C5AC92196165F300CC51EB /* UIView+WebCacheOperation.m in Sources */,
 				F0C5AC8C196165F300CC51EB /* UIButton+WebCache.m in Sources */,
+				F02BF5DC1966F4CA00A68282 /* DZFlowLayout.m in Sources */,
 				F0D2059419669CE200779F94 /* DZProgressView.m in Sources */,
 				F0C5AC83196165F300CC51EB /* MKAnnotationView+WebCache.m in Sources */,
 				F0C5AC84196165F300CC51EB /* NSData+ImageContentType.m in Sources */,
