@@ -13,4 +13,6 @@
 
 @property (nonatomic, strong) NSArray *photos;
 
+- (void)setSelectedIndex:(NSInteger)index;
+
 @end
