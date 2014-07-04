@@ -72,7 +72,8 @@ NSString *const kStatusBarHiddenKey = @"com.dezinezync.statusBarHiddenKey";
 - (void)layoutSubviews
 {
 	[super layoutSubviews];
-	[self centerScrollViewContents];
+    
+    [self centerScrollViewContents];
 	[self updateScrollViewScale];
 }
 
@@ -82,6 +83,7 @@ NSString *const kStatusBarHiddenKey = @"com.dezinezync.statusBarHiddenKey";
 	self.imageView.image = nil;
 	self.view.zoomScale = 1.0;
 	self.isZoomed = NO;
+    self.progressView.progress = 0;
 }
 
 - (void)setImage:(UIImage *)image
@@ -92,7 +94,15 @@ NSString *const kStatusBarHiddenKey = @"com.dezinezync.statusBarHiddenKey";
 - (void)dealloc
 {
 	self.view.delegate = nil;
-	[self removeObserver:self.imageView forKeyPath:@"image" context:nil];
+	@try {
+        [self removeObserver:self.imageView forKeyPath:@"image" context:nil];
+    }
+    @catch (NSException *exception) {
+        LogID(exception);
+    }
+    @finally {
+        
+    }
 
 }
 
@@ -119,7 +129,7 @@ NSString *const kStatusBarHiddenKey = @"com.dezinezync.statusBarHiddenKey";
 - (void)didTap:(UITapGestureRecognizer *)gesture
 {
 	self.forceStatusBarHidden = !self.forceStatusBarHidden;
-	[[NSNotificationCenter defaultCenter] postNotificationName:kUpdateStatusBarDisplay object:@{kStatusBarHiddenKey: @([self prefersStatusBarHidden])}];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kUpdateStatusBarDisplay object:@{kStatusBarHiddenKey: @(self.forceStatusBarHidden)}];
 }
 
 - (void)didDoubleTap:(UITapGestureRecognizer *)gesture
@@ -156,17 +166,12 @@ NSString *const kStatusBarHiddenKey = @"com.dezinezync.statusBarHiddenKey";
 	
 }
 
-#pragma mark - Status Bar
-
-- (BOOL)prefersStatusBarHidden
-{
-	return self.forceStatusBarHidden || self.statusBarAlwaysHidden || UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation);
-}
-
 #pragma mark - UIScrollView Delegate
 
 - (void)centerScrollViewContents {
 	
+	self.progressView.center = self.contentView.center;
+    
 	CGSize boundsSize = self.view.bounds.size;
     CGRect contentsFrame = self.imageView.frame;
 	

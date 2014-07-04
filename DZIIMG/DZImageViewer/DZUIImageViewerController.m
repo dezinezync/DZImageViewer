@@ -13,7 +13,9 @@
 
 static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 
-@interface DZUIImageViewerController () <UICollectionViewDelegateFlowLayout>
+@interface DZUIImageViewerController () <UICollectionViewDelegateFlowLayout> {
+    BOOL hidesInitial;
+}
 
 @property (nonatomic) BOOL hideStatusBar, forcedStatusBarHidden;
 @property (nonatomic) NSInteger currentIndex;
@@ -53,10 +55,74 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    if(self.currentIndex && self.currentIndex > 0)
+    {
+        hidesInitial = YES;
+    }
+    
     [self.collectionView setDataSource:self];
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateStatusBarDisplay:) name:kUpdateStatusBarDisplay object:nil];
     [self addObserver:self forKeyPath:@"photos" options:kNilOptions context:nil];
+    
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    if([self isModal])
+    {
+        
+        if(!_closeButton)
+        {
+            _closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+            [_closeButton setTitle:@"Close" forState:UIControlStateNormal];
+            [_closeButton setTitle:@"Close" forState:UIControlStateHighlighted];
+            [_closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [_closeButton setTitleColor:[self.view tintColor] forState:UIControlStateHighlighted];
+            
+            _closeButton.layer.borderColor = [UIColor whiteColor].CGColor;
+            _closeButton.layer.borderWidth = 1/[UIScreen mainScreen].scale;
+            
+            _closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleBottomMargin;
+            
+            [_closeButton addTarget:self action:@selector(shouldCloseImageViewer:) forControlEvents:UIControlEventTouchUpInside];
+            
+            [self.view insertSubview:self.closeButton aboveSubview:self.collectionView];
+        }
+        
+        self.closeButton.hidden = NO;
+        
+        [self.closeButton sizeToFit];
+        
+        self.closeButton.layer.cornerRadius = self.closeButton.frame.size.height/2;
+        
+//        Top right corner
+        CGRect frame = self.closeButton.frame;
+        frame.size.width += 20;
+        frame.origin = CGPointMake(self.view.bounds.size.width - self.closeButton.bounds.size.width - 35, 35);
+        
+        self.closeButton.frame = frame;
+    }
+    
+    [super viewDidAppear:animated];
+    
+    if(self.currentIndex)
+    {
+        LogID(@"Scrolling to selected");
+        [self setSelectedIndex:self.currentIndex];
+    }
+    
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    
+    [super viewDidDisappear:animated];
+    
+    if(self.closeButton)
+    {
+        self.closeButton.hidden = YES;
+    }
     
 }
 
@@ -78,20 +144,70 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
     
     CGSize currentSize = self.collectionView.bounds.size;
     CGFloat offset = self.currentIndex * currentSize.width;
+    CGPoint pointOffset = CGPointMake(offset, 0);
     
-    [self.collectionView setContentOffset:CGPointMake(offset, 0)];
+    NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:pointOffset];
+    
+    [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
 }
+
+- (BOOL)isModal {
+    return self.presentingViewController.presentedViewController == self
+    || self.navigationController.presentingViewController.presentedViewController == self.navigationController
+    || [self.tabBarController.presentingViewController isKindOfClass:[UITabBarController class]];
+}
+
+#pragma mark - UI Actions
+
+- (void)shouldCloseImageViewer:(UIButton *)close
+{
+    [self dismissViewControllerAnimated:YES completion:^{
+        LogID(@"Dismissed");
+    }];
+}
+
 
 #pragma mark - Notifications
 
 - (void)updateStatusBarDisplay:(NSNotification *)notification
 {
-	NSNumber *hide = [notification.object objectForKey:kStatusBarHiddenKey];
-	if(hide)
+    
+    NSNumber *hide = [notification.object objectForKey:kStatusBarHiddenKey];
+	__weak typeof(self) weakSelf = self;
+    
+    if([hide boolValue])
 	{
 		_hideStatusBar = [hide boolValue];
-		[self setNeedsStatusBarAppearanceUpdate];
+		[[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
+        
+        if(self.closeButton && !self.closeButton.hidden)
+        {
+            [UIView animateWithDuration:duration animations:^{
+                
+                typeof(weakSelf) sself = self;
+                
+                sself.closeButton.alpha = 0;
+                
+            }];
+        }
+        
 	}
+    else
+    {
+        _hideStatusBar = [hide boolValue];
+        [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
+		
+        if(self.closeButton && !self.closeButton.hidden)
+        {
+            [UIView animateWithDuration:duration animations:^{
+                
+                typeof(weakSelf) sself = self;
+                
+                sself.closeButton.alpha = 1;
+                
+            }];
+        }
+    }
 }
 
 #pragma mark - Collection View Datasource
@@ -110,8 +226,17 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 {
 	DZUIImageViewerCell *cell = (DZUIImageViewerCell *)[collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
     
+    if(indexPath.item == 0 && hidesInitial)
+    {
+//        Do nothing since the user wishes to see another image to start with?
+        hidesInitial = NO;
+        return cell;
+    }
+    
+    hidesInitial = NO;
+    
     id obj = [self.photos objectAtIndex:indexPath.item];
-	
+    
     if([obj isKindOfClass:[UIImage class]])
     {
         [cell setImage:obj];
@@ -164,21 +289,9 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
     [(DZUIImageViewerCell *)cell centerScrollViewContents];
 }
 
-#pragma mark - Status Bar
-
-- (UIStatusBarStyle)preferredStatusBarStyle
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
-	return UIStatusBarStyleLightContent;
-}
-
-- (BOOL)prefersStatusBarHidden
-{
-	return self.forcedStatusBarHidden || self.hideStatusBar;
-}
-
-- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
-{
-	return UIStatusBarAnimationSlide;
+    [[(DZUIImageViewerCell *)cell imageView] sd_cancelCurrentImageLoad];
 }
 
 #pragma mark - KVO

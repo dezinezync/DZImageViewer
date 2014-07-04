@@ -76,6 +76,7 @@ CGFloat interpolate(CGFloat a, CGFloat b, CGFloat progress)
     self.shapeLayer.strokeEnd = _progress;
     
     [self.shapeLayer removeAllAnimations];
+    self.shapeLayer.strokeStart = [pathAnimation.fromValue floatValue];
     [self.shapeLayer addAnimation:pathAnimation forKey:@"strokeEnd"];
     
 }

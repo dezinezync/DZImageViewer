@@ -7,7 +7,6 @@
 //
 
 #import "DZFlowLayout.h"
-#import "DZUIStatics.h"
 
 @interface DZFlowLayout()
 
@@ -28,10 +27,10 @@
 
 - (CGSize)itemSize
 {
-    CGSize viewSize = getBounds().size;
+    CGSize viewSize = self.collectionView.bounds.size;
     UIEdgeInsets viewInset = self.collectionView.contentInset;
     CGSize size = CGSizeMake(viewSize.width - viewInset.left - viewInset.right, viewSize.height - viewInset.top - viewInset.bottom);
-    //    NSLog(@"%@",NSStringFromCGSize(size));
+//    NSLog(@"%@",NSStringFromCGSize(size));
     return size;
 }
 
@@ -41,16 +40,11 @@
     return invalidate;
 }
 
-//- (void)prepareLayout
-//{
-//    [super prepareLayout];
-//}
-
 - (CGSize)collectionViewContentSize
 {
-    //    NSLog(@"Size >> %@", NSStringFromCGSize(getBounds().size));
-    CGFloat width = [self.collectionView numberOfItemsInSection:0] * getBounds().size.width;
-    return CGSizeMake(width, getBounds().size.height);
+//    NSLog(@"Size >> %@", NSStringFromCGSize(getBounds().size));
+    CGFloat width = [self.collectionView numberOfItemsInSection:0] * self.collectionView.bounds.size.width;
+    return CGSizeMake(width, self.collectionView.bounds.size.height);
 }
 
 - (void)invalidateLayout
@@ -61,7 +55,7 @@
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
 {
-    //    NSLog(@"Rect >> %@", NSStringFromCGRect(rect));
+//    NSLog(@"Rect >> %@", NSStringFromCGRect(rect));
     
     NSArray *indexPaths = [self indexPathsFromRect:rect forItemSize:[self itemSize]];
     
@@ -95,7 +89,7 @@
     
     [self.attributes setObject:attrs forKey:[NSString stringWithFormat:@"%ld", (long)indexPath.item]];
     
-    //    NSLog(@"Layout Single >> %@", NSStringFromCGRect(attrs.frame));
+//    NSLog(@"Index Path >> %@ ::Layout >> %@",indexPath, NSStringFromCGRect(attrs.frame));
     
     return attrs;
 }
@@ -126,7 +120,7 @@
         finalIDX = (rect.origin.x + rect.size.width)/size.width;
     }
     
-    //    NSLog(@"Index Range : %ld : %ld", (long)startingIDX, (long)finalIDX);
+//    NSLog(@"Index Range : %ld : %ld", (long)startingIDX, (long)finalIDX);
     
     for (NSInteger idx=startingIDX; idx<finalIDX; idx++) {
         [arr addObject:[NSIndexPath indexPathForItem:idx inSection:0]];

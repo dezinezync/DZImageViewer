@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "DZUIStatics.h"
 
 @interface DZUIImageViewerController : UICollectionViewController
 
 @property (nonatomic, strong) NSArray *photos;
+@property (nonatomic, strong) UIButton *closeButton;
 
 - (void)setSelectedIndex:(NSInteger)index;
 
