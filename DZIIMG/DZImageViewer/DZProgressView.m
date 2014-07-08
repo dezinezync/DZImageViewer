@@ -67,17 +67,7 @@ CGFloat interpolate(CGFloat a, CGFloat b, CGFloat progress)
 - (void)updateProgress
 {
     
-    CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
-    pathAnimation.duration = 0.15;
-    pathAnimation.fromValue = @(MIN(_oldProgress,self.shapeLayer.strokeStart));
-    pathAnimation.toValue = @(_progress);
-    pathAnimation.timingFunction = [[CAMediaTimingFunction alloc] initWithControlPoints:0.103:0.389:0.307:0.966];
-    
-    self.shapeLayer.strokeEnd = _progress;
-    
-    [self.shapeLayer removeAllAnimations];
-    self.shapeLayer.strokeStart = [pathAnimation.fromValue floatValue];
-    [self.shapeLayer addAnimation:pathAnimation forKey:@"strokeEnd"];
+    self.shapeLayer.strokeEnd = self.progress;
     
 }
 

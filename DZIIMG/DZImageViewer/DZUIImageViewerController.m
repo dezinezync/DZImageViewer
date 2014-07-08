@@ -90,6 +90,17 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
             [self.view insertSubview:self.closeButton aboveSubview:self.collectionView];
         }
         
+        if(!_toolbar)
+        {
+            CGRect frame = self.collectionView.bounds;
+            
+            _toolbar = [[UIToolbar alloc] initWithFrame:(CGRect){.origin=CGPointMake(0, CGRectGetHeight(frame)-44),.size=CGSizeMake(frame.size.width, 44)}];
+            _toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin;
+            _toolbar.barStyle = UIBarStyleBlackTranslucent;
+            
+            [self.view insertSubview:_toolbar aboveSubview:self.collectionView];
+        }
+        
         self.closeButton.hidden = NO;
         
         [self.closeButton sizeToFit];
@@ -140,6 +151,8 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 
 - (void)setSelectedIndex:(NSInteger)index
 {
+//    LogInt(index);
+    
     self.currentIndex = index;
     
     CGSize currentSize = self.collectionView.bounds.size;
@@ -149,6 +162,11 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
     NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:pointOffset];
     
     [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
+}
+
+- (NSInteger)getSelectedIndex
+{
+    return self.currentIndex;
 }
 
 - (BOOL)isModal {
@@ -174,6 +192,19 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
     
     NSNumber *hide = [notification.object objectForKey:kStatusBarHiddenKey];
 	__weak typeof(self) weakSelf = self;
+
+    CGRect frame = self.toolbar.frame;
+//    ToolbarHeight + 1 for the toolbar top stroke;
+    CGFloat adjustBy = CGRectGetHeight(self.toolbar.frame)+1;
+    
+    if([hide boolValue])
+    {
+        frame.origin.y += adjustBy;
+    }
+    else
+    {
+        frame.origin.y -= adjustBy;
+    }
     
     if([hide boolValue])
 	{
@@ -187,6 +218,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
                 typeof(weakSelf) sself = self;
                 
                 sself.closeButton.alpha = 0;
+                sself.toolbar.frame = frame;
                 
             }];
         }
@@ -204,6 +236,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
                 typeof(weakSelf) sself = self;
                 
                 sself.closeButton.alpha = 1;
+                sself.toolbar.frame = frame;
                 
             }];
         }
@@ -292,6 +325,21 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
     [[(DZUIImageViewerCell *)cell imageView] sd_cancelCurrentImageLoad];
+}
+
+#pragma mark - UIScrollView Delegate
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    CGFloat pageWidth = self.collectionView.frame.size.width;
+    NSInteger idx = self.collectionView.contentOffset.x / pageWidth;
+    
+    self.currentIndex = idx;
+    
+    if(self.delegate && [self.delegate respondsToSelector:@selector(didChangeSelectedIndex:)])
+    {
+        [self.delegate performSelector:@selector(didChangeSelectedIndex:) withObject:@(idx)];
+    }
+    
 }
 
 #pragma mark - KVO
