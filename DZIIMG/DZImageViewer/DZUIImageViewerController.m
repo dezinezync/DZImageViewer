@@ -120,7 +120,14 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
     if(self.currentIndex)
     {
         LogID(@"Scrolling to selected");
-        [self setSelectedIndex:self.currentIndex];
+        __weak typeof(self) weakSelf = self;
+        
+        asyncMain(^{
+            
+            [weakSelf setSelectedIndex:weakSelf.currentIndex];
+            
+        });
+        
     }
     
 }
@@ -151,7 +158,8 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 
 - (void)setSelectedIndex:(NSInteger)index
 {
-//    LogInt(index);
+//    Should not be set since we don't have that photo.
+    if(index > ([self.photos count]-1)) return;
     
     self.currentIndex = index;
     
@@ -159,9 +167,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
     CGFloat offset = self.currentIndex * currentSize.width;
     CGPoint pointOffset = CGPointMake(offset, 0);
     
-    NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:pointOffset];
-    
-    [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
+    [self.collectionView setContentOffset:pointOffset animated:NO];
 }
 
 - (NSInteger)getSelectedIndex
