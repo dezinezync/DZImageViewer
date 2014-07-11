@@ -119,7 +119,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
     
     if(self.currentIndex)
     {
-        LogID(@"Scrolling to selected");
+//        LogID(@"Scrolling to selected");
         __weak typeof(self) weakSelf = self;
         
         asyncMain(^{
@@ -186,7 +186,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 - (void)shouldCloseImageViewer:(UIButton *)close
 {
     [self dismissViewControllerAnimated:YES completion:^{
-        LogID(@"Dismissed");
+//        LogID(@"Dismissed");
     }];
 }
 
@@ -338,6 +338,8 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 {
     CGFloat pageWidth = self.collectionView.frame.size.width;
     NSInteger idx = self.collectionView.contentOffset.x / pageWidth;
+    
+    if(self.currentIndex == idx) return;
     
     self.currentIndex = idx;
     
