@@ -8,7 +8,7 @@
 
 #import "DZUIImageViewerController.h"
 #import "DZUIImageViewerCell.h"
-#import "UIImageView+WebCache.h"
+#import "DZDownloader.h"
 #import "DZFlowLayout.h"
 
 static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
@@ -282,28 +282,25 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
     }
     else
     {
-        NSURL *url;
+        NSString *url;
         
-        if([obj isKindOfClass:[NSString class]])
+        if([obj isKindOfClass:[NSURL class]])
         {
-            url = [NSURL URLWithString:obj];
+            url = [(NSURL *)obj absoluteString];
         }
-        else if([obj isKindOfClass:[NSURL class]])
+        else if([obj isKindOfClass:[NSString class]])
         {
             url = obj;
         }
         
         __weak typeof(cell) weakCell = cell;
         
-        [cell.imageView sd_setImageWithURL:url placeholderImage:nil options:kNilOptions progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+        [cell.imageView dz_setImageWithURL:url progressBlock:^(CGFloat progress) {
             
             if(!weakCell) return;
-            
-            CGFloat progress = (CGFloat)receivedSize/(CGFloat)expectedSize;
-            
             [(DZUIImageViewerCell *)weakCell progressView].progress = progress;
             
-        } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+        } completetionBlock:^(BOOL finished, UIImage *image, NSError *error) {
             
             if(!weakCell) return;
             
@@ -330,7 +327,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    [[(DZUIImageViewerCell *)cell imageView] sd_cancelCurrentImageLoad];
+    [[(DZUIImageViewerCell *)cell imageView] dz_cancelCurrentImageLoad];
 }
 
 #pragma mark - UIScrollView Delegate
