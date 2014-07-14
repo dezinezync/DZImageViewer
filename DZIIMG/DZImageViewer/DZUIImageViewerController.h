@@ -12,6 +12,7 @@
 
 @optional
 - (void)didChangeSelectedIndex:(NSNumber *)idx;
+- (void)updateState:(NSNumber *)idx;
 
 @end
 

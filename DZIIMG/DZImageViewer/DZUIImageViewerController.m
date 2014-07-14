@@ -185,6 +185,13 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 
 - (void)shouldCloseImageViewer:(UIButton *)close
 {
+    if(self.delegate && [self.delegate respondsToSelector:@selector(updateState:)])
+    {
+        NSNumber *idx = @(self.currentIndex);
+        
+        [self.delegate performSelector:@selector(updateState:) withObject:idx];
+    }
+    
     [self dismissViewControllerAnimated:YES completion:^{
 //        LogID(@"Dismissed");
     }];
@@ -306,7 +313,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
             
             if(error)
             {
-                NSLog(@"%@", error);
+//                NSLog(@"%@", error);
                 [(DZUIImageViewerCell *)cell progressView].progress = 1.0f;
                 return;
             }
