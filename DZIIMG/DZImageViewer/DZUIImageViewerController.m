@@ -45,6 +45,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 		
 		_hideStatusBar = NO;
 		_forcedStatusBarHidden = NO;
+        hidesInitial = NO;
 		
     }
     return self;
@@ -69,6 +70,8 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
+    
     if([self isModal])
     {
         
@@ -81,7 +84,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
             [_closeButton setTitleColor:[self.view tintColor] forState:UIControlStateHighlighted];
             
             _closeButton.layer.borderColor = [UIColor whiteColor].CGColor;
-            _closeButton.layer.borderWidth = 1/[UIScreen mainScreen].scale;
+            _closeButton.layer.borderWidth = 1;
             
             _closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleBottomMargin;
             
@@ -115,16 +118,15 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
         self.closeButton.frame = frame;
     }
     
-    [super viewDidAppear:animated];
-    
     if(self.currentIndex)
     {
 //        LogID(@"Scrolling to selected");
         __weak typeof(self) weakSelf = self;
-        
+//        LogInt(self.currentIndex);
         asyncMain(^{
             
-            [weakSelf setSelectedIndex:weakSelf.currentIndex];
+            typeof(weakSelf) sself = weakSelf;
+            [sself setSelectedIndex:sself.currentIndex];
             
         });
         
@@ -158,16 +160,26 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 
 - (void)setSelectedIndex:(NSInteger)index
 {
+    
 //    Should not be set since we don't have that photo.
     if(index > ([self.photos count]-1)) return;
     
     self.currentIndex = index;
-    
+
+    if(!self.closeButton) return;
     CGSize currentSize = self.collectionView.bounds.size;
     CGFloat offset = self.currentIndex * currentSize.width;
     CGPoint pointOffset = CGPointMake(offset, 0);
     
-    [self.collectionView setContentOffset:pointOffset animated:NO];
+    __weak typeof(self) weakSelf = self;
+    
+    asyncMain(^{
+        
+        typeof(weakSelf) sself = weakSelf;
+        [sself.collectionView setContentOffset:pointOffset animated:NO];
+        
+    });
+    
 }
 
 - (NSInteger)getSelectedIndex
@@ -192,6 +204,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
         [self.delegate performSelector:@selector(updateState:) withObject:idx];
     }
     
+    self.photos = @[];
     [self dismissViewControllerAnimated:YES completion:^{
 //        LogID(@"Dismissed");
     }];
