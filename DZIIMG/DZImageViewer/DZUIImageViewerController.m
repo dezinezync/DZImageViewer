@@ -8,14 +8,12 @@
 
 #import "DZUIImageViewerController.h"
 #import "DZUIImageViewerCell.h"
-#import "DZDownloader.h"
 #import "DZFlowLayout.h"
+#import "DZDownloader.h"
 
-static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
+NSString *const cellIdentifier = @"com.dezinezync.imageviewercell";
 
-@interface DZUIImageViewerController () <UICollectionViewDelegateFlowLayout> {
-    BOOL hidesInitial;
-}
+@interface DZUIImageViewerController () <UICollectionViewDelegateFlowLayout>
 
 @property (nonatomic) BOOL hideStatusBar, forcedStatusBarHidden;
 @property (nonatomic) NSInteger currentIndex;
@@ -45,7 +43,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 		
 		_hideStatusBar = NO;
 		_forcedStatusBarHidden = NO;
-        hidesInitial = NO;
+        _hidesInitial = NO;
 		
     }
     return self;
@@ -58,7 +56,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
     
     if(self.currentIndex && self.currentIndex > 0)
     {
-        hidesInitial = YES;
+        _hidesInitial = YES;
     }
     
     [self.collectionView setDataSource:self];
@@ -118,7 +116,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
         self.closeButton.frame = frame;
     }
     
-    if(self.currentIndex)
+    if(self.currentIndex != -1 || self.currentIndex != NSNotFound)
     {
 //        LogID(@"Scrolling to selected");
         __weak typeof(self) weakSelf = self;
@@ -156,6 +154,7 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 {
 	[self.collectionView setDataSource:nil];
     [self removeObserver:self forKeyPath:@"photos"];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kUpdateStatusBarDisplay object:nil];
 }
 
 - (void)setSelectedIndex:(NSInteger)index
@@ -285,14 +284,14 @@ static NSString *cellIdentifier = @"com.dezinezync.imageviewercell";
 {
 	DZUIImageViewerCell *cell = (DZUIImageViewerCell *)[collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
     
-    if(indexPath.item == 0 && hidesInitial)
+    if(indexPath.item == 0 && _hidesInitial)
     {
 //        Do nothing since the user wishes to see another image to start with?
-        hidesInitial = NO;
+        _hidesInitial = NO;
         return cell;
     }
     
-    hidesInitial = NO;
+    _hidesInitial = NO;
     
     id obj = [self.photos objectAtIndex:indexPath.item];
     

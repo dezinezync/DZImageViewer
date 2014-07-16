@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+extern NSString *const cellIdentifier;
+
 @protocol DZUIImageViewerDelegate <NSObject>
 
 @optional
@@ -22,6 +24,7 @@
 @property (nonatomic, strong) UIButton *closeButton;
 //  Dark style toolbar, add items to this if needed.
 @property (nonatomic, strong) UIToolbar *toolbar;
+@property (nonatomic) BOOL hidesInitial;
 
 @property (nonatomic, weak) id<DZUIImageViewerDelegate> delegate;
 
