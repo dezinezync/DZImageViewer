@@ -293,7 +293,9 @@ NSString *const cellIdentifier = @"com.dezinezync.imageviewercell";
     
     _hidesInitial = NO;
     
-    id obj = [self.photos objectAtIndex:indexPath.item];
+    id obj = [self.photos safeObjectAtIndex:indexPath.item];
+	
+	if(!obj) return cell;
     
     if([obj isKindOfClass:[UIImage class]])
     {
