@@ -16,7 +16,6 @@ NSString *const kStatusBarHiddenKey = @"com.dezinezync.statusBarHiddenKey";
 
 @property (nonatomic, assign) BOOL isZoomed;
 @property (nonatomic, assign) BOOL forceStatusBarHidden;
-@property (nonatomic, strong) UIScrollView *view;
 
 @property (nonatomic, assign) BOOL statusBarAlwaysHidden;
 
@@ -128,8 +127,28 @@ NSString *const kStatusBarHiddenKey = @"com.dezinezync.statusBarHiddenKey";
 
 - (void)didTap:(UITapGestureRecognizer *)gesture
 {
+	
+	BOOL stopFlag = NO;
+	for(UIView *subview in [[[gesture view] superview] subviews])
+	{
+		
+		if([subview isKindOfClass:NSClassFromString(@"DZLabel")])
+		{
+			
+			if(CGRectContainsPoint(subview.frame, [gesture locationInView:[gesture view]]))
+			{
+				stopFlag = YES;
+			}
+			
+		}
+		
+	}
+	
+	if(stopFlag) return;
+	
 	self.forceStatusBarHidden = !self.forceStatusBarHidden;
-	[[NSNotificationCenter defaultCenter] postNotificationName:kUpdateStatusBarDisplay object:@{kStatusBarHiddenKey: @(self.forceStatusBarHidden)}];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kUpdateStatusBarDisplay object:@{kStatusBarHiddenKey: @(self.forceStatusBarHidden), @"gesture": gesture}];
+	
 }
 
 - (void)didDoubleTap:(UITapGestureRecognizer *)gesture

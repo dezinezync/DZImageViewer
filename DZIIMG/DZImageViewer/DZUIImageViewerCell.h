@@ -16,6 +16,7 @@ extern NSString *const kStatusBarHiddenKey;
 
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) DZProgressView *progressView;
+@property (nonatomic, strong) UIScrollView *view;
 
 - (void)setImage:(UIImage *)image;
 - (void)centerScrollViewContents;

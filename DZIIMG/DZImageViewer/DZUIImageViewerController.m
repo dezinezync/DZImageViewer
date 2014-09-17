@@ -217,8 +217,8 @@ NSString *const cellIdentifier = @"com.dezinezync.imageviewercell";
     
     NSNumber *hide = [notification.object objectForKey:kStatusBarHiddenKey];
 	__weak typeof(self) weakSelf = self;
-
-    CGRect frame = self.toolbar.frame;
+	
+	CGRect frame = self.toolbar.frame;
 //    ToolbarHeight + 1 for the toolbar top stroke;
     CGFloat adjustBy = CGRectGetHeight(self.toolbar.frame)+1;
     
